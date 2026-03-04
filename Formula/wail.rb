@@ -12,9 +12,8 @@ class Wail < Formula
   desc "Sync Ableton Link sessions across the internet with intervalic audio"
   homepage "https://github.com/quasor/WAIL"
   # url and sha256 are updated automatically by the release workflow
-  url "https://github.com/quasor/WAIL/releases/download/v0.4.14/wail-0.4.14-src.tar.gz"
-  version "0.4.14"
-  sha256 "ede8f3316b450b4410a74572de5f09c8c648659a82bc78f622cece3fd534dd9e"
+  url "https://github.com/quasor/WAIL/releases/download/v0.4.15/wail-0.4.15-src.tar.gz"
+  sha256 "7e4523bb4dbbf5ea7902553a76431ef18dd1be25cc7a82c0bb334326dbdc26ae"
   license "MIT"
   head "https://github.com/quasor/WAIL.git", branch: "main", submodules: true
 
@@ -45,10 +44,10 @@ class Wail < Formula
 
     # Install plugin bundles to #{lib}. Run `wail-install-plugins` afterwards
     # to copy them to ~/Library/Audio/Plug-Ins/.
-    (lib/"wail-plugin-send.clap").install Dir["target/bundled/wail-plugin-send.clap/"]
-    (lib/"wail-plugin-recv.clap").install Dir["target/bundled/wail-plugin-recv.clap/"]
-    (lib/"wail-plugin-send.vst3").install Dir["target/bundled/wail-plugin-send.vst3/"]
-    (lib/"wail-plugin-recv.vst3").install Dir["target/bundled/wail-plugin-recv.vst3/"]
+    (lib/"wail-plugin-send.clap").install Dir["target/bundled/wail-plugin-send.clap/*"]
+    (lib/"wail-plugin-recv.clap").install Dir["target/bundled/wail-plugin-recv.clap/*"]
+    (lib/"wail-plugin-send.vst3").install Dir["target/bundled/wail-plugin-send.vst3/*"]
+    (lib/"wail-plugin-recv.vst3").install Dir["target/bundled/wail-plugin-recv.vst3/*"]
 
     # Install the plugin installation helper script (useful for manual reinstall).
     bin.install "scripts/wail-install-plugins.sh" => "wail-install-plugins"
