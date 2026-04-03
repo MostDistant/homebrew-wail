@@ -16,8 +16,8 @@ class Wail < Formula
   desc "Sync Ableton Link sessions across the internet with intervalic audio"
   homepage "https://github.com/MostDistant/WAIL"
   # url and sha256 are updated automatically by the release workflow
-  url "https://github.com/MostDistant/WAIL/releases/download/v1.26.2/wail-1.26.2-src.tar.gz"
-  sha256 "b2cc68bd261805124bfd640aac5b69f93929768b7aba6f5334202299d4dfd66d"
+  url "https://github.com/MostDistant/WAIL/releases/download/v2.0.1/wail-2.0.1-src.tar.gz"
+  sha256 "e795664aef29bf40224f0ab689d8acbc955870524d57e3bb01794ce99101b2b6"
   license "MIT"
   head "https://github.com/MostDistant/WAIL.git", branch: "main", submodules: true
 
@@ -89,10 +89,6 @@ class Wail < Formula
         ~/Library/Audio/Plug-Ins/VST3/
 
       Rescan plugins in your DAW to pick them up.
-
-      Note: `wail` launches the app binary directly. For the polished macOS .app
-      bundle (dock icon, native menu bar), download the DMG from:
-        https://github.com/MostDistant/WAIL/releases
     EOS
   end
 
