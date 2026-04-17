@@ -16,8 +16,8 @@ class Wail < Formula
   desc "Sync Ableton Link sessions across the internet with intervalic audio"
   homepage "https://github.com/MostDistant/WAIL"
   # url and sha256 are updated automatically by the release workflow
-  url "https://github.com/MostDistant/WAIL/releases/download/v2.3.1/wail-2.3.1-src.tar.gz"
-  sha256 "ff3240e80b6673257b72cf73e432d218316b8a32dece8f5d60658e469afd3147"
+  url "https://github.com/MostDistant/WAIL/releases/download/v2.3.2/wail-2.3.2-src.tar.gz"
+  sha256 "222d8d2621e6a1ce6556d60cffdf6b2a3c74765fdcd8f6f498a45690a505215f"
   license "MIT"
   head "https://github.com/MostDistant/WAIL.git", branch: "main", submodules: true
 
@@ -55,7 +55,9 @@ class Wail < Formula
       inreplace "go.mod",
         /replace github\.com\/DatanoiseTV\/abletonlink-go\s*=>\s*.*/,
         "replace github.com/DatanoiseTV/abletonlink-go => #{buildpath}/abletonlink-go-build"
-      system "go", "build", "-o", "wail", "."
+      # Inject the workspace version (from Cargo.toml, provided by Homebrew via `url`)
+      # into main.appVersion so the UI shows the installed version.
+      system "go", "build", "-ldflags", "-X main.appVersion=#{version}", "-o", "wail", "."
     end
     bin.install "wail-app/wail"
 
