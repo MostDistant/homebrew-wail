@@ -16,8 +16,8 @@ class Wail < Formula
   desc "Sync Ableton Link sessions across the internet with intervalic audio"
   homepage "https://github.com/MostDistant/WAIL"
   # url and sha256 are updated automatically by the release workflow
-  url "https://github.com/MostDistant/WAIL/releases/download/v3.3.0/wail-3.3.0-src.tar.gz"
-  sha256 "3007e77ba1a7cbd6c028c1ca9207e4760920b06b769b28aba30e111b4a57e55e"
+  url "https://github.com/MostDistant/WAIL/releases/download/v3.4.0/wail-3.4.0-src.tar.gz"
+  sha256 "4e8ad83a57e69e3eb7635bfe6aeed027ad3c9ad3e4370dcf16880c9b4e473e67"
   license "MIT"
   head "https://github.com/MostDistant/WAIL.git", branch: "main", submodules: true
 
