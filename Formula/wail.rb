@@ -16,8 +16,8 @@ class Wail < Formula
   desc "Sync Ableton Link sessions across the internet with intervalic audio"
   homepage "https://github.com/MostDistant/WAIL"
   # url and sha256 are updated automatically by the release workflow
-  url "https://github.com/MostDistant/WAIL/releases/download/v3.8.0/wail-3.8.0-src.tar.gz"
-  sha256 "7fdcbad6b134c9187164108ebe11555273ebea819fcd04dc17eac3b3f0c15bce"
+  url "https://github.com/MostDistant/WAIL/releases/download/v3.9.1/wail-3.9.1-src.tar.gz"
+  sha256 "1bf8e5afd52e254c2f21d96fc591c6c1a8a11865e37273dd2e2dffddada9a564"
   license "MIT"
   head "https://github.com/MostDistant/WAIL.git", branch: "main", submodules: true
 
@@ -43,6 +43,24 @@ class Wail < Formula
       system "go", "build", "-tags", "nolibopusfile", "-ldflags", "-X main.appVersion=#{version}", "-o", "wail", "."
     end
     bin.install "wail-app/wail"
+
+    # Build the CLAP plugins (thin PCM bridge for non-Link-Audio DAWs, ADR-0005) and
+    # stage them under lib/. Homebrew can't write into the user's plugin folder, so
+    # `wail-install-plugins` (below) copies them there on demand.
+    system "cmake", "-S", "plugins", "-B", "build/plugins", "-DCMAKE_BUILD_TYPE=Release"
+    system "cmake", "--build", "build/plugins"
+    lib.install Dir["build/plugins/*.clap"]
+    bin.install "scripts/wail-install-plugins.sh" => "wail-install-plugins"
+  end
+
+  def caveats
+    <<~EOS
+      The WAIL CLAP plugins were built but not copied into your DAW plugin folder
+      (Homebrew can't write there). Install them with:
+        wail-install-plugins
+      Then rescan plugins in your DAW. You only need them for DAWs without native
+      Ableton Link Audio (Live 12.3+ needs no plugin).
+    EOS
   end
 
   test do
