@@ -16,8 +16,8 @@ class Wail < Formula
   desc "Sync Ableton Link sessions across the internet with intervalic audio"
   homepage "https://github.com/MostDistant/WAIL"
   # url and sha256 are updated automatically by the release workflow
-  url "https://github.com/MostDistant/WAIL/releases/download/v3.19.0/wail-3.19.0-src.tar.gz"
-  sha256 "fc381ecee3772eaba5394ac0e6f457f7b9c0b5b295313209e0cc60cc3e68ceb9"
+  url "https://github.com/MostDistant/WAIL/releases/download/v3.19.1/wail-3.19.1-src.tar.gz"
+  sha256 "76a35be4d286b5cd1276e5ce80c4a09e0f506329c7194e480fe39c166d996a90"
   license "MIT"
   head "https://github.com/MostDistant/WAIL.git", branch: "main", submodules: true
 
@@ -44,14 +44,18 @@ class Wail < Formula
     end
     bin.install "wail-app/wail"
 
-    # Build the CLAP plugins (thin PCM bridge for non-Link-Audio DAWs, ADR-0005) and
-    # stage them under lib/. Homebrew can't write into the user's plugin folder, so
-    # `wail-install-plugins` (below) copies them there on demand.
+    # Build the CLAP plugins (thin PCM bridge for non-Link-Audio DAWs, ADR-0005, plus
+    # the Link Bridge pair, ADR-0007) and stage them under lib/. Homebrew can't write
+    # into the user's plugin folder, so `wail-install-plugins` (below) copies them
+    # there on demand.
     system "cmake", "-S", "plugins", "-B", "build/plugins", "-DCMAKE_BUILD_TYPE=Release"
     system "cmake", "--build", "build/plugins"
     # Product bundles only: dev tools (transport-probe, linkbridge-spike) build
-    # alongside but must not be installed.
-    lib.install Dir["build/plugins/{wail-send,wail-recv,linkbridge-send,linkbridge-recv}.clap"]
+    # alongside but must not be installed. Named explicitly rather than brace-globbed
+    # — a glob silently drops renamed bundles instead of failing the build.
+    %w[wail-send wail-recv wail-linkbridge-send wail-linkbridge-recv].each do |bundle|
+      lib.install "build/plugins/#{bundle}.clap"
+    end
     bin.install "scripts/wail-install-plugins.sh" => "wail-install-plugins"
   end
 
