@@ -1,0 +1,75 @@
+# WAIL Homebrew Formula
+#
+# This file is the source of truth for the Homebrew formula.
+# It is copied automatically to the MostDistant/homebrew-wail tap on each release.
+# The `url` and `sha256` fields below are updated by the release workflow.
+#
+# Architecture: Go/Wails desktop app.
+# The app (session orchestration, Link sync, signaling, audio) is built with Go,
+# with an Ableton Link binding compiled via cgo against the vendor/link submodule.
+#
+# To install:
+#   brew tap MostDistant/wail
+#   brew install MostDistant/wail/wail
+
+class WailBeta < Formula
+  desc "Sync Ableton Link sessions across the internet with intervalic audio"
+  homepage "https://github.com/MostDistant/WAIL"
+  # url and sha256 are updated automatically by the release workflow
+  url "https://github.com/MostDistant/WAIL/releases/download/v4.2.0-beta.1/wail-4.2.0-beta.1-src.tar.gz"
+  sha256 "4bad3e3890f3f39df441b4bdfc94d9b8955e578305a85877bb6ff6c0cc461589"
+  license "MIT"
+  head "https://github.com/MostDistant/WAIL.git", branch: "main", submodules: true
+
+  depends_on "cmake" => :build
+  depends_on "go" => :build
+  depends_on "pkg-config" => :build
+  depends_on "opus"
+  depends_on :macos # requires macOS WebKit (used by Wails webview)
+
+  def install
+    # Homebrew's superenv pkg-config shim references the legacy "pkg-config"
+    # opt path, but modern Homebrew provides it via "pkgconf". Point pkg-config
+    # directly at the real binary so the Go/cgo opus binding finds Opus.
+    ENV["PKG_CONFIG"] = Formula["pkgconf"].opt_bin/"pkg-config"
+
+    # Head builds are a bare git checkout; fetch the vendor/link submodule the
+    # cgo Ableton Link binding compiles against. Release tarballs bundle it.
+    system "git", "submodule", "update", "--init", "--recursive" if build.head?
+
+    # Build the Go/Wails desktop app. appVersion (from the release `url`) is
+    # injected so the UI shows the installed version.
+    cd "wail-app" do
+      system "go", "build", "-tags", "nolibopusfile", "-ldflags", "-X main.appVersion=#{version}", "-o", "wail", "."
+    end
+    bin.install "wail-app/wail"
+
+    # Build the WAIL Send / WAIL Receive CLAP plugins (for DAWs without native
+    # Link Audio, ADR-0007) and stage them under lib/. Homebrew can't write into
+    # the user's plugin folder, so `wail-install-plugins` (below) copies them
+    # there on demand.
+    system "cmake", "-S", "plugins", "-B", "build/plugins", "-DCMAKE_BUILD_TYPE=Release"
+    system "cmake", "--build", "build/plugins"
+    # Product bundles only: dev tools (transport-probe, linkbridge-spike) build
+    # alongside but must not be installed. Named explicitly rather than brace-globbed
+    # — a glob silently drops renamed bundles instead of failing the build.
+    %w[wail-send wail-recv].each do |bundle|
+      lib.install "build/plugins/#{bundle}.clap"
+    end
+    bin.install "scripts/wail-install-plugins.sh" => "wail-install-plugins"
+  end
+
+  def caveats
+    <<~EOS
+      The WAIL Send / WAIL Receive CLAP plugins were built but not copied into your DAW plugin folder
+      (Homebrew can't write there). Install them with:
+        wail-install-plugins
+      Then rescan plugins in your DAW. You only need them for DAWs without native
+      Ableton Link Audio (Live 12.3+ needs no plugin).
+    EOS
+  end
+
+  test do
+    assert_predicate bin/"wail", :exist?
+  end
+end
